@@ -1,0 +1,13 @@
+mkdir t1
+mkdir t1/t2
+mkdir t1/t3
+mkdir t1/t3/t5
+mkdir t1/t3/t6
+mkdir t1/t4
+
+tree ./t1 -L 1
+
+echo -e "Operacijski sistemi\n63200019\tGašper Oblak\nRačunalništvo in informatika"
+
+printf "%s\n%d\t%s\n%s\n" "Operacijski sistemi" 63200019 "Gašper Oblak" "Računalništvo in informatika"
+
