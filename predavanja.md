@@ -1,6 +1,4 @@
 # Logicna organizacija podatkov
-
-
 ### Naslavljanje datotek
 - `pot`
 - `absolutna pot`
@@ -152,4 +150,146 @@ ln -s original mehka
     - uid in gid proces ki je odprl datoteko
 
 ### Dupliciranje deskriptorja
+
+# Procesi
+
+- Program - __pasivna__ entiteta
+    - shranjen v izvrsljivi datoteki
+    - strojna koda in podatki
+- Proces: __program ki tece__
+    - ima neko stanje
+    - komunicira z okoljem (uporabnik in drugi procesi)
+    - tekmuje za vire z drugimi procesi
+
+## Glavni nalogi procesov
+- __lastnistvo__ oz zascita virov
+- __izvajanje__ kode
+
+### Sestava procesa
+- `programska koda`: strojna koda, kise lahko izvaja na procesrju
+- `sklad`: podatki (parametri funkcij, vrnitveni naslovi itd.), pomembni za izvajanje
+- `kopica`: (!ne algoritmicna kopica, kos pomnilnika) dinamicno alocirani podatki
+- `podatki`: ostali podatk, ki jih proces obdeluje
+- `deskriptor procesa`: dodatni nadozrni podatki, ki jih OS potrebuje za uporavljanje procesa
+
+### Naslovni prostor
+- pomnilnik, ki ga proces lahk nastavlja (vidi od naslova 0, do 0xFF..F)
+
+![trda-povezava](./images/naslovni_prostor.png)
+
+### Zivljenje procesa
+- `stars`:
+    - proces, ki je podal zahtevo po stvaritev novega procesa - otroka
+- `otrok`:
+    - proces, ki je bil ustvarjen na zahtevo drugega procesa
+
+OS vodi evidenco procesov
+- `PID` (processs identification) ... stevilka procesa
+- `PPID` (parent PID) ... stevilka starsa
+
+### Stvaritev procesa
+- __nalaganje__ iz izvrsne datoteke
+    - program se nalozi iz izvrsne datoteke in zacne izvajati
+        - zavzeto (eager): nalaganje celotnega programa pred izvajajem
+        - leno (lazy): nalaganje po potrebi (preko mehjanizma odstranjevanja in menjavanja (swapping)
+    - Windows `CreateProces()`
+    - Unix: `posix_spawn()`
+
+- iz obstojecega procesa
+    - deljenje virov med starsem in otrokom
+        - niti: delijo vse vire
+    - kloniranje: otrok je kopija starsa
+    - Linux: `clone()`
+    - Unix: `fork()`
+
+### Koncanje procesa
+- normalen zakjucek
+    - preko sistemskega klica, npr. exit()
+- napaka pri izvajanju
+    - aritmetika (deljenje z 0)
+    - napaka zascite (kazalaec null, dostop do V/I naprave)
+    - napacni ali priviligirani strojni ukaz
+- na zunanjo zahtevo
+    - s strani drugega procesa (zahteva po ukinitvi)
+    - prekoracitev meja pri uporabi virov
+
+#### sprostitev
+- sprositetv zasedenih virov
+    - pomnilnik, zapiranje odprtih datotek
+- sprostitev __deskriptorja procesa__
+    - pogosto je zakasnjena
+        - te informacije lahko potrebujejo nekateri nadzorni programi
+        - izhodni status koncanega proesa navadno prevzame njegov stars
+
+### Stanje procesa
+- __je aktiven__ (`S`)
+    - izvajan: dejansko zaseda procesor
+    - pripravljen: ali pa je le pripravljen na to
+- __ni aktiven__ (caka na nek dogodek) (`R`)
+    - caka na nek dogodek (branje datoteke, iztek zasovnika)
+![trda-povezava](./images/stanje-procesa.png)
+
+### Deskriptor proecesa
+- tudi PCB (process control block)
+- jedrna podatkovna struktura
+- hrani nadzorne podatke procesa
+- preklop procesa
+    - deskriptor omogoca preklapljanje procesov
+
+
+## Procesi - API
+
+### Windows procesni API
+- CreateProces()
+- ExitProces()
+- TerminateProcess(proces, status)
+
+#### CreateProces
+```
+CreateProcess(
+    ime programa,         
+    ukazna vrstica,        
+    atributi procesa,       
+    atributi niti,          
+    dedovanje rocajev,
+    zastavice,
+    okolje,
+    trenutni imenik,
+    zagonske informacije,
+    procesne informacije
+)
+```
+
+- koncanje procesa
+    - ExitProcess(status)
+    - TerminateProcess(proces, status)
+    - GetExitCodeProcess(proces, status)
+- Cakanje procesa
+    - WaitForSingleObject(handle, miliseconds);
+
+### Unix podbni sistemi
+- info o procesu
+    - PID procesa: int getpid()
+    - GID procesa: int getgid()
+    - PPID procesa: int getppid()
+    - UID procesa: int getuid()
+    - GID procesa: int getgid()
+- spanje ter casi procesa
+    - `sleep(unsigned int seconds)`
+    - `clock_t times(struct tms* buf)`
+
+
+#### Fork
+- Stvaritev procesa - `fork()`
+- kopiramo trenutni proces (__stars__ ustvari nov proces __otroka__)
+    - ima svoj deskriptor procesa
+    - razlicni PID, PPID
+    - vecina podatkov se kopira
+    - razlicne kljucavnice
+    - __enak naslovni prostor__ (ista koda, enaki podatki, sklad, kopica (vendar kopija))
+
+#### Exit
+- Sistemski klic: `exit(int status)`
+- proces se zakljuci s podanim izhodnim statusom
+- jedro __sprosti vire koncanega procesa__
 
