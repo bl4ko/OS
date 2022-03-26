@@ -293,3 +293,14 @@ CreateProcess(
 - proces se zakljuci s podanim izhodnim statusom
 - jedro __sprosti vire koncanega procesa__
 
+Izhodni status koncanega procesa
+- 8 bitna vrednost
+- 0 pomeni uspesen zakljucek programa
+- 1 ... 127 koda napake, neuspesen zakljucek
+- 128 ... 255 zakljucek zaradi signala
+
+##### Zombie proces
+- izhodni status se shrani v deksriptorju procesa
+- dokler status ni prevet je otrok __zombi__
+- __Prevzem__ izhodnega statusa otroka - `wait()`
+

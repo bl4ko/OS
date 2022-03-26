@@ -1,10 +1,159 @@
 # Bash Basics
 
-### Shell history
+## Files
+### File permissions
+- Operacije oz. dovoljenja nad datotekami (drugacen pomen pri imenikih!!!)
+    - `r` read
+    - `w` write
+    - `x` execute
+    - `-` prazno
+
+| __Znak__ | __Datoteka__ | __Imenik__ |
+| - | - | - |
+| `r` | read | izpis imenika |
+| `w`| pisanje | spreminjanje |
+| `x` | izvajanje | vstop v imenik |
+
+- Sklopi uporabnikov
+    - `u` - user
+    - `g` - group
+    - `o` - ostali
+    - `a` - vsi
+- Spreminjanje dovoljenj
+    - `+` - dodajanje
+    - `-` - odvzemanje
+    - `=` - nastavljanje
+- `chmod [augo][+-=]`
+
 ```bash
-history
-histroy | grep ls
+chmod u+x test.txt
+chmod g+rwx test.txt
+chmod o-rwx test.txt
 ```
+
+- spreminjanje z binarno
+
+```bash
+chmod 775 test.txt
+```
+
+-  Change owner of a file and group
+
+```bash
+chown matevz test.txt
+chgrp student test.txt
+```
+
+### Zascita datotek
+
+#### Omejeno brisanje
+- Restricted deleition
+    - nastavimo za imenik, velja za vsebovane datoteke
+        - datotteko v imeniku lahko odstrani le njen lastnik
+- oznaka `t`
+    - `chmod +t datoteka`
+
+#### Setuid/setgid bit
+- Omgoca zagon izvsljive datoteke z dovoljenji lastnika
+- Oznaka s (sklop lastnik in skupina)
+    - `chmod +s` datoteka
+
+### Patterns
+- Osnovni vzorci:
+    - `*` - poljuben niz
+    - `?` - poljuben znak
+    - `[znaki]` poljuben znak iz danega nabora znakov
+
+```bash
+ls *.zip
+echo b*.txt
+echo b?.txst
+ls ?2.txt f*
+echo ???
+ls ?
+echo ?
+echo c[[:digit:]].txt
+echo [ac][13].*
+echo [a-c][13].t?t
+echo [a-c][13].t?t
+echo [a-c]?[02].*xt
+```
+- Napredni vzorci
+    - `?`(vzorci) - 0 ali 1 ponovitev
+    - `*`(vzorci) - 0 ali vec ponovitev
+
+
+## Terminal types
+- `tty` is a regular terminal device (the console on your server for example)
+- `pty` (pseudo terminal device) is a terminal __which is emulated__ by an other program (example: xterm, ssh, ...)
+- `pts` is the slave part of pty
+
+```bash
+# open new terminal window
+$ tty
+/dev/pts/0
+# open second terminal window
+$ tty
+/dev/pts/1
+# on first terminal window write:
+
+```
+
+## Users
+- Id stevilka uporabnika - `uid`
+- Home directory of a user: `/home/user`
+    - root: `/root`
+- Changing user: `su user`
+- Nastavitev gesla: `passwd`
+- `last`, `lastb`
+- izvajanje kot root `sudo`
+
+### Groups
+- identifikacija stevilka skupine - `gid`
+- spisek skuping: `groups`
+- informacije o uporabniku `id`
+- zamenjava skupine: `newgrp`, `sg`
+
+
+### etc/passwd
+- podatki o userjih `/etc/passwd`
+- Lahko pisemo na roke
+    - `/usr/bin/nologin` uporabnikom prepovemo da se prijavijo v konzolo
+```bash
+oracle:x:1021:1020:Oracle user:/data/network/oracle:/bin/bash
+Username:x-indicates-password-stored-in-/etc/shadow:UID:GID:User ID info:Home-directory:Command/shell
+```
+
+- Doajanja uporabnika
+- ustavrjanje uporabnika: `useradd`
+- odstranjevanje uporabnika: `userdel`
+- spreminjanje uporabnika: `usermod`
+- Kriptiranje gesla: `md5pass`, `sha1pass`, ...
+```bash
+u=s63000000
+g=tezkogeslo
+useradd -m -d "/home/student/$u" -s /bin/bash -g student -c "Student" $u
+usermod -p $(md5pass "$g") $u
+```
+
+- dodajanje v grupo
+```bash
+sudo usermod -aG sudo user
+```
+
+### etc/shadow
+- gesla shranjena v __hash__ obliki
+- `/etc/gshadow`: group passwords
+
+
+### Administracija skupin
+- Nastavitev gesla: `gpasswd`
+- Ustvarjanje skupine: `groupadd`
+- Odstranjevanje skupine: `groupdel`
+- Spreminjanje skupine: `groupmod`
+
+
+## Sripting
 
 ### Special keyboard shortcuts
 | Keybinding | Shortcut |
@@ -16,6 +165,12 @@ histroy | grep ls
 | `Ctrl+l` | Clear screen |
 
 ### Useful commands
+
+#### Shell history
+```bash
+history
+histroy | grep ls
+```
 
 #### Stream editor - sed
 
@@ -39,8 +194,6 @@ sed - n`4,10p`         # Print lines [4,10]
 ```
 
 ##### Substitution
-- `
-
 ```bash
 ➜  ~/Faks/2_year/OS/vaje git:(main) ✗ cat text | sed 's/t/T/'
 10 Tiny toes
@@ -60,8 +213,18 @@ one Two Three
 Tree Twice
 ```
 
-####
+### Special variables
 
+| variable | function |
+| - | - |
+| `$_` | zadnji argument predhodno izvedenga ukaza |
+| `$0` | ime skripte |
+| `$1`,`$2`,...,`$n` | zaporedni argumenti skripte |
+| `$?` | izhodni status zadnjega izvedenga ukaza |
+| `$$` | PID lupine |
+| `$!` | PID procesa, ki je bil zadnji zagnan v ozadju |
+| `$*`, `$@` | Vsi argumenti skripte skupaj |
+| `$-` | opcije podane lupini, ki poganja skripto |
 
 ### Exporting variables
 Exported varaibles such as `$HOME` and `$PATH` are available to (inherited by) other programs run by the shell that exports them (and the programs 
@@ -109,7 +272,6 @@ The subshell can change its own copy of any variable, exported or not, and may a
 ```bash
 echo "This is a file." > file1.txt
 cat file1.txt
-# This is a file
 ```
 When this file was created, the operating system wrote the bytes to a location on the disk and linked the data to a file name.
 
@@ -129,8 +291,6 @@ cat file2.txt
 ```bash
 echo "It points to data on the disk." >> file1.txt
 cat file2.txt
-# This is a file.
-# It points to data on the disk
 ```
 > If we delete one of the files, we're deleting only one of the links to the data but not the data.
 
@@ -152,29 +312,6 @@ echo "This is a file." > file1.txt
 ln -s file1.txt file2.txt
 rm file1.txt
 cat file2.txt
-# cat: file2.txt: No such file or directory.
-```
-
-#### Creating symbolic links to directories
-```bash
-ln -s ~/documents/ test
-ls documents
-ls test
-```
-
-
-##  Subshells
-__Podlupina__ je podproces trenutne lupine. 
-- Navadno (naredimo podlupino):
-    - `( ukaz )`
-- S substitucijo
-    - `$( ukaz )`
-- Spremenljivka $BASH_SUBSHELL
-
-### Podlupina
-```bash
-a=123
-( echo $a )
 # 123
 
 ( a=456 )
@@ -319,11 +456,12 @@ done <<< "$a"
 ```
 
 
-### Sistemski klici
+
+## System Calls
 ```bash
 uname                                       # get name and information about current kernel
 cd /proc                                    # mape kjer so podatki o procesih
 cat cmdline                                 # BOOT_IMAGE=/boot/vmlinuz-4.4.0-38-generic         tukaj je shranjeno jedro
 cat uptime                                  # podatki o sistemu
 dmesg                                       # print or control the kernel ring buffer
-`tis ``
+```
