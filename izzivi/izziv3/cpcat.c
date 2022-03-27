@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "syscall.h"        // BUFSIZ
 
-#define BUFFSIZE 50 
 
 void cpCat(const char* progName, const char* srcPath, const char* destPath);
 void writeErorr(int errNum, const char* progName); 
@@ -30,18 +30,18 @@ int main(int argc, char const *argv[]) {
 }
 
 void cpCat(const char* progName, const char* srcPath, const char* destPath) {
-    int srcDesc = strcmp(srcPath, "-") == 0 ? 0 : open(srcPath, O_RDONLY | O_CREAT | O_TRUNC);
+    int srcDesc = strcmp(srcPath, "-") == 0 ? 0 : open(srcPath, O_RDONLY);
     if (srcDesc < 0) 
         writeErorr(errno, srcPath);
 
-    int destDesc = strcmp(destPath, "-") == 0 ? 1 : open(destPath, O_WRONLY | O_CREAT);
+    int destDesc = strcmp(destPath, "-") == 0 ? 1 : open(destPath, O_WRONLY);
     if (destDesc < 0) 
         writeErorr(errno, destPath);
     
     // prepis
-    char buff[BUFFSIZE+1];
+    char buff[BUFSIZ];
     int n_read;
-    while ((n_read = read(srcDesc, buff, BUFFSIZE)) > 0) {
+    while ((n_read = read(srcDesc, buff, BUFSIZ)) > 0) {
         if (write(destDesc, buff, n_read) < 0) 
             writeErorr(errno, destPath);
         n_read = 0;
