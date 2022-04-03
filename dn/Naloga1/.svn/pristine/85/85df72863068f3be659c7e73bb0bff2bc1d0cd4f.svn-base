@@ -1,0 +1,12 @@
+Izvajanje test-C
+  Log datoteka: test-C.log
+  Izhod programa: test-C.out
+  Ukazna vrstica: bash Naloga1.sh status 12930 13710
+  Izhodni status: 30
+  Realni cas izvajanja: 10
+  Uporabniski cas izvajanja: 6
+  Sistemski cas izvajanja: 5
+  Procesorski cas izvajanja: 11
+Preverjanje test-C
+  Izhodni status: ok
+  Tocke: 1

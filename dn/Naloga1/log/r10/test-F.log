@@ -1,0 +1,13 @@
+Izvajanje test-F
+  Log datoteka: test-F.log
+  Izhod programa: test-F.out
+  Ukazna vrstica: bash Naloga1.sh fib 0 1 2 3 4 5 8 10 15 20 22 30 36 40 42 50 59 60 70 80 90
+  Izhodni status: 0
+  Realni cas izvajanja: 54
+  Uporabniski cas izvajanja: 24
+  Sistemski cas izvajanja: 32
+  Procesorski cas izvajanja: 56
+Preverjanje test-F
+  Izhodni status: ok
+  Standardni izhod: ok
+  Tocke: 1

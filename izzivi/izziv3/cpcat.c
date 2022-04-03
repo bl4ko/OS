@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "syscall.h"        // BUFSIZ
+#include <sys/syscall.h>        // BUFSIZ
 
 
 void cpCat(const char* progName, const char* srcPath, const char* destPath);

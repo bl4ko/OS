@@ -1,0 +1,6 @@
+root: enaka obstaja 1 2
+daemon: enaka obstaja 1 0
+bin: enaka obstaja 1 0
+sync: razlicna obstaja 1 0
+games: razlicna obstaja 1 0
+nobody: enaka ne-obstaja 1 0

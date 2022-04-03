@@ -1,0 +1,9 @@
+DIR   /home/test/tests/gozd/judezevo drevo
+----PIPE  bela  murva
+----DIR   davidov javor
+--------FILE  ognjeni trn
+--------DIR   pritlikava bela smreka
+----DIR   lipa
+--------DIR   cikacaka
+------------DIR   cikacaka
+----LINK  ognjeni trn

@@ -1,0 +1,18 @@
+DIR   /home/test/tests/gozd/judezevo drevo
+/home/test/tests/gozd/judezevo drevo/bela  murva
+----PIPE  bela  murva
+/home/test/tests/gozd/judezevo drevo/davidov javor
+----DIR   davidov javor
+/home/test/tests/gozd/judezevo drevo/davidov javor/ognjeni trn
+--------FILE  ognjeni trn
+/home/test/tests/gozd/judezevo drevo/davidov javor/pritlikava bela smreka
+--------DIR   pritlikava bela smreka
+/home/test/tests/gozd/judezevo drevo/davidov javor/pritlikava bela smreka/*
+/home/test/tests/gozd/judezevo drevo/lipa
+----DIR   lipa
+/home/test/tests/gozd/judezevo drevo/lipa/cikacaka
+--------DIR   cikacaka
+/home/test/tests/gozd/judezevo drevo/lipa/cikacaka/cikacaka
+------------DIR   cikacaka
+/home/test/tests/gozd/judezevo drevo/ognjeni trn
+----LINK  ognjeni trn

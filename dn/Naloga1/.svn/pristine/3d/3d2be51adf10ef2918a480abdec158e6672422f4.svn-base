@@ -1,0 +1,13 @@
+Izvajanje test-L
+  Log datoteka: test-L.log
+  Izhod programa: test-L.out
+  Ukazna vrstica: bash Naloga1.sh prostor /home/test/tests/gozd/bukev 12
+  Izhodni status: 0
+  Realni cas izvajanja: 492
+  Uporabniski cas izvajanja: 159
+  Sistemski cas izvajanja: 476
+  Procesorski cas izvajanja: 635
+Preverjanje test-L
+  Izhodni status: ok
+  Standardni izhod: err
+  Tocke: 0

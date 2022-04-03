@@ -1,0 +1,13 @@
+Izvajanje test-J
+  Log datoteka: test-J.log
+  Izhod programa: test-J.out
+  Ukazna vrstica: bash Naloga1.sh drevo /home/test/tests/gozd/bukev 5
+  Izhodni status: 0
+  Realni cas izvajanja: 29
+  Uporabniski cas izvajanja: 11
+  Sistemski cas izvajanja: 19
+  Procesorski cas izvajanja: 30
+Preverjanje test-J
+  Izhodni status: ok
+  Standardni izhod: ok
+  Tocke: 1

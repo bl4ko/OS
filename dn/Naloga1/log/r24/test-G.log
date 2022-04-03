@@ -1,0 +1,13 @@
+Izvajanje test-G
+  Log datoteka: test-G.log
+  Izhod programa: test-G.out
+  Ukazna vrstica: bash Naloga1.sh upori root daemon bin sync games nobody
+  Izhodni status: 0
+  Realni cas izvajanja: 223
+  Uporabniski cas izvajanja: 72
+  Sistemski cas izvajanja: 212
+  Procesorski cas izvajanja: 284
+Preverjanje test-G
+  Izhodni status: ok
+  Standardni izhod: ok
+  Tocke: 1

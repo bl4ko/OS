@@ -1,0 +1,42 @@
+DIR   /home/test/tests/gozd/bukev
+/home/test/tests/gozd/bukev/bor
+----DIR   bor
+/home/test/tests/gozd/bukev/bor/gurus.txt
+--------FILE  gurus.txt
+/home/test/tests/gozd/bukev/bor/linkec
+--------LINK  linkec
+/home/test/tests/gozd/bukev/bor/macesen
+--------DIR   macesen
+/home/test/tests/gozd/bukev/bor/macesen/brest
+------------DIR   brest
+/home/test/tests/gozd/bukev/bor/macesen/brest/brda
+----------------PIPE  brda
+/home/test/tests/gozd/bukev/bor/macesen/brest/brin
+----------------DIR   brin
+/home/test/tests/gozd/bukev/bor/macesen/brest/brin/bodika
+--------------------DIR   bodika
+/home/test/tests/gozd/bukev/bor/macesen/brest/brin/pipca
+--------------------PIPE  pipca
+/home/test/tests/gozd/bukev/bor/macesen/brest/ping
+----------------LINK  ping
+/home/test/tests/gozd/bukev/bor/macesen/brest/pong
+----------------LINK  pong
+/home/test/tests/gozd/bukev/bor/macesen/brest/runme.sh
+----------------FILE  runme.sh
+/home/test/tests/gozd/bukev/bor/pipca
+--------PIPE  pipca
+/home/test/tests/gozd/bukev/jelka
+----DIR   jelka
+/home/test/tests/gozd/bukev/jelka/cev
+--------PIPE  cev
+/home/test/tests/gozd/bukev/jelka/lipa
+--------DIR   lipa
+/home/test/tests/gozd/bukev/jelka/lipa/cemprin
+------------DIR   cemprin
+/home/test/tests/gozd/bukev/jelka/lipa/cemprin/*
+/home/test/tests/gozd/bukev/jelka/ping
+--------LINK  ping
+/home/test/tests/gozd/bukev/jelka/pong
+--------LINK  pong
+/home/test/tests/gozd/bukev/jelka/runme.sh
+--------FILE  runme.sh

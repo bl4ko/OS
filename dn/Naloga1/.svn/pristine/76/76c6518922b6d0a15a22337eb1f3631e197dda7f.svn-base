@@ -1,0 +1,13 @@
+Izvajanje test-E
+  Log datoteka: test-E.log
+  Izhod programa: test-E.out
+  Ukazna vrstica: bash Naloga1.sh stej /home/test/tests/test-E-aliases /home/test/tests/test-E-aliases /home/test/tests/test-E-aliases
+  Izhodni status: 0
+  Realni cas izvajanja: 20
+  Uporabniski cas izvajanja: 12
+  Sistemski cas izvajanja: 17
+  Procesorski cas izvajanja: 29
+Preverjanje test-E
+  Izhodni status: ok
+  Standardni izhod: ok
+  Tocke: 1
