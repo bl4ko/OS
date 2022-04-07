@@ -10,7 +10,7 @@ while true
 do
     clear
     ps -eo pid,$comm,$mem,$user,$cpu | (sed -u 1q; sort -rnk 5) | head -11 | nl -v 0 | sed '1 s/0//'
-    read -t 1 -n 1 keypress
+    read -t 3 -n 1 keypress
 
     case $keypress in
         "q")
