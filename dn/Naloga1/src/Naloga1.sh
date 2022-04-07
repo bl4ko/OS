@@ -162,16 +162,20 @@ drevo () {
     max_globina=${2:-3}
     trenutna_globina=${3:-1}
 
+    # echo ""
+    # echo "$imenik"
+    # ls -la "$imenik"
+
     if (( $trenutna_globina <= $max_globina )); then
         for file in "$imenik"/*; do
             base="${file##*/}"
             
             # preverimo ce je direktorij
-            if test -d "$file"; then 
+            if test -L "$file"; then 
+                repeatChar $trenutna_globina && printf "%-5s %s\n" "LINK" "$base"
+            elif test -d "$file"; then 
                 repeatChar $trenutna_globina && printf "%-5s %s\n" "DIR" "$base"
                 (drevo "$file" $max_globina $(( $trenutna_globina + 1 )))
-            elif test -L "$file"; then 
-                repeatChar $trenutna_globina && printf "%-5s %s\n" "LINK" "$base"
             elif test -b "$file"; then 
                 repeatChar $trenutna_globina && printf "%-5s %s\n" "BLOCK" "$base"
             elif test -c "$file"; then 
