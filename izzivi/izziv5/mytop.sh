@@ -8,15 +8,13 @@ cpu="%cpu"
 
 while true
 do
-
     clear
     ps -eo pid,$comm$mem$user$cpu | (sed -u 1q; sort -rnk 5) | head -11 | nl -v 0 | sed '1 s/0//'
-    read -t 3 -n 1 keypress
+    read -t 1 -n 1 keypress
 
     if test "$keypress" = "h"; then
         echo -e "q - izhod\nh - pomoc\nc - toggle command\nm - toggle memory\np - cpu toggle\nu - toggle user"
         read -n 1 keypress
-
     fi
 
     case $keypress in
@@ -55,7 +53,6 @@ do
             continue
         ;;
     esac
-
 done
 
 
