@@ -243,3 +243,217 @@ int main() {
     return 0;
 }
 ```
+
+# Procesi v C
+
+## Stanje procesa
+- Linux stanja
+    - pripravljen ali izvajan - `TASK_RUNNING`
+        - z uporabniskega vidika se proces v obeh primerih izvaja
+    - ustavljen - `TASK_STOPPED`
+    - uspavan - `TASK_INTERRUPTIBLE, TASK_UNINTERRUPTIBLE`,
+    - zombi
+
+<p align="center"><img src="./images/stanje_procesa.png" width="100%"></p>
+
+
+## Info o procesu
+- **okolje procesa**
+- **env**
+```c
+#include <stdio.h>
+int main(int argc, char* argv[], char* environ[]) {
+    // Izpis argumentov.
+    int i;
+    for (i = 0; i < argc; i++)
+        printf("%s\n", argv[i]);
+    // Izpis okoljskih spremenljivk.
+    i = 0;
+    while (environ[i])
+       printf("%s\n", environ[i++]);
+}
+```
+- bash
+```bash
+gcc -o environ environ.c
+env -i a=123 b=456 ./environ 1 2 3
+env a=123 b=456 ./environ 1 2 3
+```
+- **info o procesu**
+    - PID procesa: `int getpid()`
+    - PPID procesa: `int getppid()`
+- Razno
+    - spanje: `int sleep(unsigned int seconds)`
+
+## Stvaritev procesa
+- Sistemski klic `int fork()`
+    - ustvari se nov proces (otrok), katerega stars je tekoci proces
+    - Otrok je kopija oz. klon starsa
+        - kopira se koda, podatki, sklad, rokovalniki signalov, itd.
+        - kopirajo se deskriptorji odprtih datotek
+        - kljucavnice se ne kopirajo
+        - copy-on-write leno kopiranje
+```c
+int pid = fork();
+if (pid < 0)
+    // NAPAKA
+else if (pid == 0)
+    // OTROK
+else
+    // STARŠ
+```
+
+- Sistemski klic `int exec(...)`
+    - argumenti funkcije
+        - pot do izvrslijeve datoteke, argumenti programa
+        - lahko podamo tudi okoljske spremenljivke
+    - nadomestitev trenutnega procesa
+        - PID in PPID se ne spremenita
+        - podeduje odprte datoteke, trenutni in korenski imenik
+        - zagon izvrsljivke datoteke -> nova koda, sklad, podatki, kopica, ...
+
+### Druzina funkcij int exec(...)
+- `execl(), execlp(), execle()`
+- `execv(), excvp(), execve()`
+- argumenti ukaza
+    - `l`: podamo arugmente direktno
+    - `v`: podamo argumente v tabeli
+- `p` - iskanje preko `$PATH`
+- `e` - dodajanje okoljskih spremenljivk 
+
+```bash
+execl("/bin/ls", "ls", "-alp", "/home/jure", NULL);
+
+char* args[] = { "ls", "-alp", "/home/jure", NULL };
+execvp("ls", args);
+
+execvp(argv[1], &argv[1])
+```
+
+## Koncanje procesa
+- sistemski klic `exit(int status)`
+    - izhodni status
+        - se shrani v jedru v deskriptorju procesa
+        - prevzage ga stars procesa z wait()
+        - dokler stars ne prevzame statusa je proces zombi
+    - proces init kot sirotisnica
+        - skrbi za sirote in prevzema njihove izhodne statuse
+        - privzeti odziv na `SIGCHLD` je izvedba wait()
+
+## Cakanje na proces
+- druzina funkcij `int wait(..)`
+    - cakanje na otroka, da se konca
+    - prevzem njegovega izhodnega statusa
+    - cakanje na dolocenega otroka
+        - `int waitpid(pid, &status, opcije)`
+    - cakanje na poljubnega otroka
+        - `int wait(&status)`
+        - enako kot `waitpid(-1, &status, 0)`
+    - izhodni status se skriva v spremenljivki `status`
+    - branje izhodnega statusa
+    - man waitpid
+    - `makro WIFEEXITED(status)`
+         - se je program koncal z exit()?
+    - `makro WEXITSTATUS(status)`
+        - iz spremenljivke status se izlusci izhodni status
+
+```c
+if (WIFEXITED(status))
+    status = WEXITSTATUS(status));
+```
+
+## Vejitev
+```c
+#include <stdio.h>
+
+int main(int argc, char* argv[]) {
+    int pid = fork();
+    if (pid < 0)
+        perror(argv[0]);
+    else if (pid == 0)
+        printf("Sem otrok %i s staršem %i.\n", getpid(), getppid());
+    else
+        printf("Sem starš %i z otrokom %i,\n", getpid(), pid);
+}
+```
+
+<p align="center"><img src="./images/procesi_vejitev.png" width="100%"></p>
+
+### Primer sirota
+```c
+#include <stdio.h>
+
+int main(int argc, char* argv[]) {
+    int pid = fork();
+    if (pid < 0)
+        perror(argv[0]);
+    else if (pid == 0)
+		// otrok zaspi za 60 sekund
+        sleep(60);
+}
+```
+
+<p align="center"><img src="./images/sirota.png" width="100%"></p>
+
+
+### Primer zombi
+```c
+#include <stdio.h>
+
+int main(int argc, char* argv[]) {
+    int pid = fork();
+    if (pid < 0)
+        perror(argv[0]);
+    else if (pid > 0)
+		// starš zaspi za 60 sekund
+        sleep(60);
+}
+```
+
+<p align="center"><img src="./images/zombi.png" width="100%"></p>
+
+### Zagon programa
+- ce se exec izvede pravilno se koda nikoli vec ne izvaja naprej
+```c
+#include <stdlib.h>
+#include <stdio.h>
+#include <sys/wait.h>
+
+int main(int argc, char* argv[]) {
+    int pid = fork();
+    if (pid < 0) {
+        perror("fork");
+        exit(EXIT_FAILURE);
+    } else if (pid == 0) {
+        execvp(argv[1], &argv[1]);
+        perror("exec");
+        exit(EXIT_FAILURE);
+    } else {
+        int status;
+        if (waitpid(pid, &status, 0) < 0) {
+           perror("waitpid");
+           exit(EXIT_FAILURE);
+        }
+        if (WIFEXITED(status))
+           printf("Izhodni status otroka: %i\n",
+               WEXITSTATUS(status));
+    }
+    exit(EXIT_SUCCESS);
+}
+```
+
+## Procesi v lupini
+- `ls`
+<p align="center"><img src="./images/ks0kyouba].png" width="100%"></p>
+
+- `eyes &`
+<p align="center"><img src="./images/xeyes.png" width="100%"></p>
+
+- `cat/etc/passwd/ | cut -d: -f7 | sort -u`
+
+<p align="center"><img src="./images/procesi-cevovod.png" width="100%"></p>
+
+    
+
+
+

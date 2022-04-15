@@ -191,26 +191,31 @@ drevo () {
     fi
 }
 
-recSize () {
+prostor () {
     imenik="${1:-.}"
     max_globina=${2:-3}
     trenutna_globina=${3:-1}
     velikost=0
     stBlokov=0
     prostor=0
-    
-    if (( $trenutna_globina <= $max_globina )); then
+
+    # metadata v imeniku zavzamejo nekaj...
+    dir_size="$(stat -c%s "$imenik")"
+    (( velikost += dir_size ))
+
+    # Gremo cez vse datoteke v imeniku
+    if (( trenutna_globina <= max_globina )); then
         for file in "$imenik"/*; do
-            if test -f "$file"; then 
-                read a b c <<< $(stat "$file" --printf="%s %b %B")
+            if ! test -L "$file" && test -d "$file"; then
+                read a b c <<< "$(prostor "$file" "$max_globina" $(( trenutna_globina + 1 )))"
                 (( velikost += a ))
                 (( stBlokov += b ))
-                (( prostor += b * c))
-            else 
-                echo "$(recSize "$file" $max_globina $(( trenutna_globina + 1 )))" | read a b c
+                (( prostor += c ))
+            else
+                read a b c <<< "$(stat "$file" --printf="%s %b %B" 2>/dev/null)"
                 (( velikost += a ))
                 (( stBlokov += b ))
-                (( prostor += c))
+                (( prostor += b*c ))
             fi
         done
     fi
@@ -259,7 +264,7 @@ case $akcija in
         exit 0
     ;;
     drevo)
-        if (test -n "$3") && (! isUint "$3"); then
+        if test -n "$3" && (! isUint "$3"); then
             napacnaUporabaSkripte
         fi
         printf "%-5s %s\n" "DIR" "$2"
@@ -267,7 +272,8 @@ case $akcija in
         exit 0
     ;;
     prostor)
-        recSize "${@:2}"
+        read a b c <<< "$(prostor "${@:2}")"
+        printf "Velikost: %d\nBlokov: %d\nProstor: %d\n" $a $b $c
     ;;
     *)
         napacnaUporabaSkripte
