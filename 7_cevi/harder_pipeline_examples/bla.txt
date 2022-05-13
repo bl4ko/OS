@@ -1,0 +1,7 @@
+primer
+primer1.c
+primer2.c
+primer3.c
+primer4.c
+primer5.c
+primer6.c

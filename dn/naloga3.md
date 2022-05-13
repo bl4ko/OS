@@ -1,0 +1,20 @@
+Par tipov glede DN3:
+- namigi na strani so velikokrat preveč komplicirani - zelo možno da bo tvoja rešitev enostavnejša
+- namig glede char* TOKENS[] tabele je dober. Mejte globalno tabelo z tokeni in eno globalno spremenljivko ki hrani število tokenov
+- parser DOBRO stestiraj!
+- strtok BAD. ne uporabljaj. napiš svoj parser, sam en while loop ki se sprehaja po prebrani vrstici in par ifov. nič težjega
+- vsak ukaz mej v ločeni funkciji
+- mej ločeno funkcijo za izvajanje zunanjih ukazov
+- mej ločeno funkcijo za cevovod
+- za preusmerjanje je najlažje če imaš dve globalni spremenljivki "in" in "out"(zelo kreativno, hvala). lahko sta int če uporabljaš deskriptorje ali FILE* in potem v vsaki funkciji le beri iz "in" in piši v "out". Po vsakem parsanju vrstice pa ustrezno nastavi "in" in "out" da kaže na datoteko oz. stdin/out
+- če ti pri testiranju podvaja izpis oz. piše ime lupine v vrsticah si pozabil nastaviti interaktivni način - Ctrl + F na navodila in išči "isatty"
+- rokovalnik za zombije in tist handler za SIG ni nujen. vsi testni primeri gredo skozi tudi brez.
+- za cevovod ne kompliciraj, namigi so tu zelo kompleksni. načeloma imaš dovolj en pipe in for loop to je to.
+- kar se tiče forkanja - namigi brezveze komplicirajo, če je ukaz zunanji ali se izvaja v ozadju ali je del cevovoda, forkaš če ne pa ne.
+- kater exec uporabljaš je odvisno od parserja in hranjenja tokenov. načeloma je execvp najlažji če delaš kot piše v namigih. NE POZABI NULL KOT ZADNJI ARGUMENT ZA EXEC!!!. če imaš tabelo tokens[][] in hočeš nastaviti NULL je dozdaj najlažja najdena rešitev da pač kopiraš tabelo v *tokens[] in nakonc nastaviš NULL.
+- pri ukazih za delo z datotekami/mapami pazi na pravice - pri ustvarjanju le teh moraš dat takšne da imaš potem tudi pravico brat in brisati datoteko/mapo - 755/775 za mape in 666/664 za datoteke je nekako default če se ne motim
+- za status imej globalno spremenljivko ki jo po izvajanju vsakega ukaza nastaviš na 0 oz. errno.
+- če se ti v izpisu avtomatskih testov pojavljajo čudni znaki, je verjetno problem v null terminatorju ali pa bufferju(premajhen, lahko probaš z malloc)
+- malloc-u, calloc-u in podobnim se izogibaj ker naredijo več škode kot koristi - inputi in outputi so dovolj majhni da komot vse tabele definiraš statično na skladu - tabela[dolžina]
+- pri pipes ne pozabi zapret ustrezen konec cevi - torej če proces bere iz cevi, moraš najprej zapreti write od te iste cevi v temu procesu in obratno v staršu
+- pri linklist je potrebno te povezave iskati le v isti mapi

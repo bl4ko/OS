@@ -1,4 +1,16 @@
+# Ignore all
+*
+
+# Unignore all with extensions
+!*.*
+
+# Unignore all dirs
+!*/
+
 log
 .svn
-Naloga*
 .DS_Store
+.vscode
+a.out
+Naloga3.dSYM
+.ccls-cache

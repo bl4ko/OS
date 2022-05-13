@@ -1,0 +1,13 @@
+.  ..  digits.txt  revdigits.txt  count.txt  shells.txt  
+     123
+01234567890123456789
+e8d6c4b2a0e8d6c4b2a0
+ 110 /usr/bin/false
+   2 ##
+   2 # Open Directory.
+.  ..  Naloga3.c  out.txt  test.in  digits.txt  gori.txt  Naloga3.dSYM  Naloga3  a.out  revdigits.txt  shells.txt  
+01234567890123456789
+e8d6c4b2a0e8d6c4b2a0
+ 110 /usr/bin/false
+   2 ##
+   2 # Open Directory.

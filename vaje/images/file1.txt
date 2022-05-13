@@ -1,2 +1,0 @@
-This is a file
-It points to data on the disk.

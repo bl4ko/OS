@@ -1,0 +1,3 @@
+Echo tokencount=2
+echo: Gori na gori goir
+Gori na gori goir
