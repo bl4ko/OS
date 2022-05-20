@@ -4,6 +4,11 @@
 
 > Uporaba: <u>optimizacija uporabe procesorja</u>
 
+## C functions
+```c
+pthread_cond_broadcast(&condVar);   # send signal to all waiting thread
+pthread_cond_signal(&condVar);      # send signal to some waiting threads
+```
 
 ## Problem proizvajalci-porabniki
 

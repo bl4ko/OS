@@ -2,32 +2,33 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h> // isspace(int c)
-#include <fcntl.h> // debug open file
-#include <sys/stat.h> // mkdir, stat (get file status)
-#include <dirent.h>    // working with directory
-#include <sys/errno.h>
-#include <sys/stat.h> // file status
+#include <ctype.h>                      // isspace(int c)
+#include <fcntl.h>                      // debug open file
+#include <sys/stat.h>                   // mkdir, stat (get file status)
+#include <dirent.h>                     // working with directory
+#include <sys/errno.h>                  // errno    
+#include <sys/stat.h>                   // file status
+#include <signal.h>
 
 /* -- START-CONSTANTS ------------------------------------------------- */
-#define MAX_SH_NAME_LEN 30     // maximal shell name length
-#define MAX_TOKENS 50          // maximal number of input tokens
-#define ANSI_COLOR_CYAN    "\x1b[36m" // CYAN color
-#define ANSI_COLOR_MAGENTA "\x1b[35m" // MAGENTA
-#define ANSI_COLOR_RESET   "\x1b[0m" // default color
-#define ANSI_COLOR_BLUE    "\x1b[34m" // blue
-#define MAX_PIPE_ARGS 30      // maximal number of args in a single pipe
+#define MAX_SH_NAME_LEN 30              // maximal shell name length
+#define MAX_TOKENS 50                   // maximal number of input tokens
+#define ANSI_COLOR_CYAN    "\x1b[36m"   // CYAN color
+#define ANSI_COLOR_MAGENTA "\x1b[35m"   // MAGENTA
+#define ANSI_COLOR_RESET   "\x1b[0m"    // default color
+#define ANSI_COLOR_BLUE    "\x1b[34m"   // blue
+#define MAX_PIPE_ARGS 30                // maximal number of args in a single pipe
 #define MAX_NUMBER_OF_HARDLINKS 100
 /* -- END-CONSTANTS --------------------------------------------------- */
 
 /* -- START GLOBAL VARIABLES ------------------------------------------ */
-char sh_name[MAX_SH_NAME_LEN];      // shell name:  sh_name>
-char* tokens[MAX_TOKENS];           // tabela vhodnih tokenov
-int token_count = 0;                // real: tokens.length
-int exit_status = 0;                 // zadnji izhodni status (v odspredju) izvedenega ukaza
-int saved_stdout = -1;              // Saved File descriptor for stdin
-int saved_stdin = -1;               // Saved File descriptor for stdout
-int bg = 0;                         // If a process is a background process
+char sh_name[MAX_SH_NAME_LEN] = "mysh"; // shell name:  sh_name>
+char* tokens[MAX_TOKENS];               // tabela vhodnih tokenov
+int token_count = 0;                    // real: tokens.length
+int exit_status = 0;                    // zadnji izhodni status (v odspredju) izvedenega ukaza
+int saved_stdout = -1;                  // Saved File descriptor for stdin
+int saved_stdin = -1;                   // Saved File descriptor for stdout
+int bg = 0;                             // If a process is a background process
 /* -- END GLOBAL VARIABLES -------------------------------------------- */
 
 /* -- START FUNCTION PROTOTRYPES -------------------------------------- */
@@ -59,14 +60,14 @@ void cpcat();
 void pipes();
 void zunanjiUkaz();
 void pcpcat(char* ptokens[]); 
+void catch_zombie(int sig);
 /* -- END FUNCTION PROTOTRYPES ---------------------------------------- */
 
 
 /*
------ 1. REPL Read Eval & Print Loop ----------------------------------------------------------------------------------------------------------------------------------------------------
-* Med interaktivnim (ročno vnašanje ukazov) in neinteraktivnim (skriptni način) načinom lahko ločimo s pomočjo funkcije isatty(1).  
-* Če program zaženemo s presumeritvijo vhoda, gre za neinteraktivni način, npr. ./mysh <skripta.sh, sicer pa za interaktivnega. 
-* Ukazno lupino sprogramiramo po principu repl:
+-- 1. REPL Read Eval & Print Loop -----
+    * Če program zaženemo s presumeritvijo vhoda, gre za neinteraktivni način, npr. ./mysh <skripta.sh, sicer pa za interaktivnega. 
+    * Ukazno lupino sprogramiramo po principu repl:
     * v interaktvinem nacinu izpisemo povizvnik -- ime lupine in ">", npr "mysh>"
     * preberemo eno vrstcio s standardnega vhoda (READ)
     * jo izvedemo (EVAL)
@@ -74,34 +75,35 @@ void pcpcat(char* ptokens[]);
     * ponavljamo (LOOP)
 */
 
+
 int main(int argc, char const *argv[])
 {
-    // int f = open("../../dn3-testi/vhodi/test-H.txt", O_RDONLY, 0644); /* debug */
-    // dup2(f, 0); /* debug */
-    // close(f); 
-    // f = open("out.txt", O_WRONLY, 0644);
-    // dup2(f, 1);
-    // close(f);
+    /* // Catch Background Process Termination */
+    /* signal(SIGCHLD, &catch_zombie); */
 
-    strcpy(sh_name, "mysh");
-
+    // Main program loop
     while (1) {
         // isatty - test whether a file descriptor refers to a terminal
-        // preverimo ali smo v interaktvinem/neinteraktivnem nacinu
+        // Preverimo ali gre za neinteraktivni/interaktivni nacin (iz kje bere program fd0)
         if (isatty(1)) printf("%s> ", sh_name);
 
+
         // Pocakamo na pritisk tipke enter='\n'
-        // Nato preberemo eno vrstico s standardnega vhoda *READ*
+        // Nato preberemo eno vrstico s standardnega vhoda *Faza: READ*
         char* line = NULL; size_t size;
         int nread = getline(&line, &size, stdin);
         if (nread == -1) {
-            // EOF or error
+            // EOF or Error
+            exit_status = errno;
             break; 
         }
+
+        // Faza: EVALUATE
         if (!tokenize(line)) continue; // comment or empty line (only spaces)
 
         // Check if a Background Process
-        bg = 0; // if a process is background = 1, else = 0
+        // bg = 1 (background process), bg = 0 (not a background process)
+        bg = 0;
         if (tokens[token_count-1][0] == '&') {
             bg = 1;
             token_count-=1;
@@ -110,13 +112,9 @@ int main(int argc, char const *argv[])
             if (pid != 0) continue; // main process continue
         }
 
-        int fd_in;  // dummy fd for new input 
-        int fd_out; // dummy fd for new output
         for (int i = token_count-1; i >= 1; i--) {
             if (tokens[i][0] == '<') {
-                // fprintf(stdout, "<%s --> ", &tokens[i][1]); fflush(stdout);
-                fd_in = open(&tokens[i][1], O_RDONLY | O_CREAT, 0644);
-                // fprintf(stdout, "fd:%d\n", fd_in); fflush(stdout);
+                int fd_in = open(&tokens[i][1], O_RDONLY | O_CREAT, 0644);
                 if (fd_in == -1) throw_err(__LINE__, errno);
                 saved_stdin = dup(0);
                 dup2(fd_in, 0); close(fd_in);
@@ -124,7 +122,7 @@ int main(int argc, char const *argv[])
             }
             else if (tokens[i][0] == '>') {
                 // fprintf(stdout, ">%s --> ", &tokens[i][1]); fflush(stdout);
-                fd_out = open(&tokens[i][1], O_WRONLY | O_CREAT, 0644);
+                int fd_out = open(&tokens[i][1], O_WRONLY | O_CREAT, 0644);
                 // fprintf(stdout, "fd:%d\n", fd_out); fflush(stdout);
                 if (fd_out == -1) throw_err(__LINE__,errno);
                 saved_stdout = dup(1);
@@ -565,5 +563,14 @@ void pcpcat(char* ptokens[]) {
     exit(0);
 }
 
-
+void catch_zombie(int sig) {
+    int status = 0;
+    while (wait(&status) > 0) {
+        if (WIFEXITED(status)) {
+            exit_status = WEXITSTATUS(status);
+            if (exit_status != 0) perror("catch_zombie");
+            return;
+        }
+    }
+}
 
