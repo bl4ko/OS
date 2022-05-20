@@ -12,5 +12,6 @@ log
 .DS_Store
 .vscode
 a.out
-Naloga3.dSYM
+*.dSYM
 .ccls-cache
+

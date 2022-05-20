@@ -7,4 +7,3 @@
 - zaporedje ukazov, ki se izvajajo na procesorju
 - vsebuje del programske kode
 - Vse niti se izvajao "vzporedno"
-

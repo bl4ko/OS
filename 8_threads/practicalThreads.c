@@ -3,6 +3,12 @@
 #include <pthread.h>
 #include <unistd.h>
 
+/*
+    * We will create two threads, 
+    * Each will sum half of the elements of an array
+    * Then we will return the value and combine it
+*/
+
 int primes[10] = { 2, 3, 5, 7, 11, 13, 17, 19, 23, 29};
 
 void* routine(void* arg) {
