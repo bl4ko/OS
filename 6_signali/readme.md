@@ -12,12 +12,12 @@
 ## Rokovanje signalov
 **Rokovanje signalov**:
 - vsak signal ima svoj rokovalnik
-- odziv na signal
-- kratka rutina, ki se izvede ob prejetju signala
+- odziv na signal, kratka rutina, ki se izvede ob prejetju signala
 
 **Nacini rokovanja**:
-- privzeti rokovalnik: `SIG_DFL` (default)
+- privzeti rokovalnik: `SIG_DFL` (default - poskrbi OS)
 - ignoriranje signala: `SIG_IGN` (ignore)
+- uporabniski rokovalnik (definiramo sami)
 
 **Mozni privzeti odzivi na signale**:
 - koncanje procesa
@@ -51,7 +51,7 @@ Privzeti odziv je koncanje procesa
 
 
 ## Bash
-Ukaz `kill`
+<u>Posiljanje signalov</u>: ukaz `kill`
 
 ```bash
 kill -l                         # list signalov
@@ -61,24 +61,39 @@ kill -SIGUSR1 123 456 789       # koncamo procese
 kill -0 $$; echo $?             # ali procees obstaja
 kill -CONT -1                   #
 ```
+<u>Lovljenje signalov</u>: ukaz `trap`
+```bash
+trap -p
+trap "ls" SIGUSR1
+trap "echo Zivjo" 2         # Izpisi zivjo ob CTRL+C
+trap -p SIGINT
+trap "" 2                   #
+trap - INT                  # Poenostavi
+```
 
-## Lovljenje signalov
-- **Otrok** deduje rokovalnike starsa 
-- **Nov program** ima privzete rokovalnike
+## C
+**Otrok** deduje rokovalnike starsa 
+
+**Nov program** ima privzete rokovalnike
     - sistemski klic `exec()` izgubi rokovalnike
+
+### Posiljanje signala
+```c
+// Posiljanje signala signum procesu pid
+kill(pid, signum);
+
+// Posiljanje signala samemu sebi
+raise(signum)
+```
 
 Uporabniski rokovalnik
 - sistemski klic `signal(signum, sigfun)`
 - ob prejetu signala `signum` se poklice funkcija `sigfun`
 - podpis rokovalne funkcije
 
+### Handlanje signala
 ```c
-void rokovalnik(int signum) {
-    // telo funkcije
-}
-```
-- Rokovalnik koncanih otrok
-```c
+// Rokovalnik koncanih otrok
 void sigchld_handler (int signum) {
     int pid, status, serrno;
     serrno = errno;

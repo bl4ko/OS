@@ -23,7 +23,7 @@ int main(int argc, char const *argv[])
         close(fd[0]); close(fd[1]); close(f);
     }
 
-    close(fd[0], fd[1]);
+    close(fd[0]); close(fd[1]);
     wait(NULL);
     int status;
     waitpid(-1, &status, 0);

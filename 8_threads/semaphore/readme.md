@@ -18,13 +18,32 @@ sem_post ---> s++
 
 - `sem_init(&semaphore, 0, 1)` inits semaphore value s = 1 (at value = 1 it is same as mutex)
 
-<img src="./images/semaphore.png" width="100%">
 
-- if we set `sem_Init(&semaphore, 0, 2)` then two threads will be able to reach critical section at the same time.
+### Naive implementation
+```python
+struct Semaphore is
+    count: int
+    queue: Queue
 
-<img src="./images/semaphore2.png" width="100%">
+fun init(sem, value) is
+    sem.value = value
+    semqueue = []
 
-## Producer consumer Problem
+atomic fun wait(sem) is
+    sem.count -= 1
+    if sem.count < 0 then
+        queue.enqueue(this process)
+        make_waiting(this process)
+
+atomic fun signal(sem) is
+    sem.count += 1
+    if sem.count >= 0 then
+        processs = queue.dequeue()
+        make_ready(this process)
+```
+
+
+## Producer Consumer Problem
 We have a shared buffer (between multiple threads).
 - we have **producers** that put to the buffer
 - we have **consumeers** that take fro mthe buffer
